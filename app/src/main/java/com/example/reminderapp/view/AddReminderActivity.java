@@ -16,6 +16,17 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+//import com.google.firebase.Timestamp;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.sql.Timestamp;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -23,6 +34,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,11 +79,15 @@ public class AddReminderActivity extends AppCompatActivity {
         });
     }
 
-    public void addReminderClick(View view){
+    public void addReminderClick(View view) throws ParseException {
 
         String reminder = binding.reminderText.getText().toString();
         String reminderDate = binding.editTextDate.getText().toString();
         String reminderTime = binding.editTextTime.getText().toString();
+        String timeFormat = reminderDate+" "+reminderTime;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        Date parsedDate = dateFormat.parse(timeFormat);
+        Timestamp timestamp = new Timestamp(parsedDate.getTime());
 
             HashMap<String,Object> postData = new HashMap<>();
 
@@ -79,6 +95,7 @@ public class AddReminderActivity extends AppCompatActivity {
             postData.put("reminderDate",reminderDate);
             postData.put("reminderTime",reminderTime);
             postData.put("name",userName);
+            postData.put("dateFormat",timestamp);
 
 
             firebaseFirestore.collection("Reminder").add(postData).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
