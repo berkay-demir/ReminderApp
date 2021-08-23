@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Reminder App</string>
+    <string name="title_activity_reminders">RemindersActivity</string>
+    <string name="title_home">Home</string>
+
+    <string name="title_addReminder">Add Reminder</string>
+    <string name="title_activity_reminder">ReminderActivity</string>
+    <string name="title_activity_main2">MainActivity2</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="msg_token_fmt" />
+</resources>
