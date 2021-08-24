@@ -13,12 +13,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.reminderapp.MessagingService;
 import com.example.reminderapp.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -26,7 +26,11 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,6 +40,11 @@ public class MainActivity extends AppCompatActivity {
     public String deviceID;
     String device_ID;
     String token;
+    String name;
+    String surname;
+    String birthdayDate;
+    String time;
+    String reminder;
 
 
 
@@ -90,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void controlID(){
+     void controlID(){
+
 
         firebaseFirestore.collection("Users").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -103,16 +113,20 @@ public class MainActivity extends AppCompatActivity {
                         users.add(documentSnapshot.getString("deviceID"));
                        int size = users.size();
 
+
                         for (int i=0; i<size; i++){
+
 
                             device_ID=users.get(i);
                             System.out.println("Device ID is: "+device_ID);
+                            System.out.println("ThisDeviceId is "+ deviceID);
 
-                            if(device_ID == deviceID){
+                            if(device_ID.equals(deviceID)){
+                                System.out.println("if "+device_ID);
                                 Intent intent = new Intent(MainActivity.this,RemindersActivity.class);
                                 startActivity(intent);
                                 finish();
-                                break;
+
 
                             }
 
@@ -130,21 +144,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void passClicked(View view){
-        Intent intent = new Intent(MainActivity.this,RemindersActivity.class);
-        startActivity(intent);
-        finish();
-    }
 
-    public void enterClicked(View view){
-        String name = binding.nameText.getText().toString();
-        String surname = binding.surnameText.getText().toString();
-        String birthdayDate = binding.birthdayDate.getText().toString();
-
-
-
-
-
+    public void enterClicked(View view) throws ParseException {
+        name = binding.nameText.getText().toString();
+        surname = binding.surnameText.getText().toString();
+        birthdayDate = binding.birthdayDate.getText().toString();
 
 
         HashMap<String,Object> postData = new HashMap<>();
@@ -168,9 +172,39 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this,e.getLocalizedMessage(),Toast.LENGTH_LONG).show();
                     }
                 });
+       //birthday();  simdilik calismiyor
 
 
 
+
+
+
+    }
+    public void birthday() throws ParseException {
+        time="23:59";
+        reminder= name +" kişisinin doğum günü";
+        String title ="birthday";
+        String timeFormat = birthdayDate+" "+time;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        Date parsedDate = dateFormat.parse(timeFormat);
+        Timestamp timestamp = new Timestamp(parsedDate.getTime());
+
+        HashMap<String,Object> birthdayData = new HashMap<>();
+        birthdayData.put("token",token);
+        birthdayData.put("name",name);
+        birthdayData.put("surname",surname);
+        birthdayData.put("reminderDate",birthdayDate);
+        birthdayData.put("deviceID",deviceID);
+        birthdayData.put("reminderTime",time);
+        birthdayData.put("reminder",reminder);
+        birthdayData.put("dateFormat",timestamp);
+        birthdayData.put("title",title);
+        firebaseFirestore.collection("Reminder").add(birthdayData).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+
+            }
+        });
 
 
     }

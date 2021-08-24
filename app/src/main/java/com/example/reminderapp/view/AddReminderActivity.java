@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.sql.Timestamp;
 
@@ -44,9 +45,10 @@ public class AddReminderActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
 
     String deviceID;
-    String bDayDate;
     String userName;
     String userSurname;
+    String token;
+    String title;
 
 
     @Override
@@ -72,6 +74,7 @@ public class AddReminderActivity extends AppCompatActivity {
                         Map<String,Object> data = documentSnapshot.getData();
                         userName = (String) data.get("name");
                         userSurname= (String) data.get("surname");
+                        token = (String) data.get("token");
 
                     }
                 }
@@ -85,6 +88,7 @@ public class AddReminderActivity extends AppCompatActivity {
         String reminderDate = binding.editTextDate.getText().toString();
         String reminderTime = binding.editTextTime.getText().toString();
         String timeFormat = reminderDate+" "+reminderTime;
+        title = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         Date parsedDate = dateFormat.parse(timeFormat);
         Timestamp timestamp = new Timestamp(parsedDate.getTime());
@@ -95,7 +99,10 @@ public class AddReminderActivity extends AppCompatActivity {
             postData.put("reminderDate",reminderDate);
             postData.put("reminderTime",reminderTime);
             postData.put("name",userName);
+            postData.put("surname",userSurname);
+            postData.put("token",token);
             postData.put("dateFormat",timestamp);
+            postData.put("title",title);
 
 
             firebaseFirestore.collection("Reminder").add(postData).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

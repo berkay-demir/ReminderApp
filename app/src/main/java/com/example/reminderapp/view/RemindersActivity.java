@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,12 +18,16 @@ import com.example.reminderapp.R;
 import com.example.reminderapp.adapter.PostAdapter;
 import com.example.reminderapp.databinding.ActivityRemindersBinding;
 import com.example.reminderapp.model.Post;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,6 +45,8 @@ public class RemindersActivity extends AppCompatActivity {
     ArrayList<Post> postArrayList;
     private ActivityRemindersBinding binding;
     PostAdapter postAdapter;
+    String deviceID;
+    String device_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +54,7 @@ public class RemindersActivity extends AppCompatActivity {
         binding = ActivityRemindersBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        deviceID = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         firebaseFirestore = FirebaseFirestore.getInstance();
         postArrayList = new ArrayList<>();
         getData();
@@ -57,6 +65,8 @@ public class RemindersActivity extends AppCompatActivity {
     }
 
     private void getData() {
+
+
         firebaseFirestore.collection("Reminder").orderBy("dateFormat", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -71,6 +81,7 @@ public class RemindersActivity extends AppCompatActivity {
                         String reminderDate = (String) data.get("reminderDate");
                         String reminderTime = (String) data.get("reminderTime");
                         String name = (String) data.get("name");
+                        String title =(String) data.get("title");
                         String timeFormat = reminderDate+" "+reminderTime;
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
                         Date parsedDate = null;
@@ -83,10 +94,18 @@ public class RemindersActivity extends AppCompatActivity {
                         Date date = new Date();
                         Timestamp timestampCurrent = new Timestamp(date.getTime());
                         int control = timestamp.compareTo(timestampCurrent);
-                        if (control<0){
+
+                            if (control<0) {
+
+                                String docId = (String) document.getId();
+                                firebaseFirestore.collection("Reminder").document(docId).delete();
+
+                                System.out.println(timestamp + " " + timestampCurrent);
 
 
-                        }
+                            }
+
+
 
 
                         Post post = new Post(reminder,reminderDate,reminderTime,name);
@@ -112,6 +131,53 @@ public class RemindersActivity extends AppCompatActivity {
         if(item.getItemId()==R.id.add_reminder){
             Intent intentToAdd = new Intent(RemindersActivity.this,AddReminderActivity.class);
             startActivity(intentToAdd);
+        }
+        else if (item.getItemId()==R.id.refresh){
+            Intent intentRefresh = new Intent(RemindersActivity.this,RemindersActivity.class);
+            startActivity(intentRefresh);
+        }
+        else if (item.getItemId()==R.id.signOut){
+            firebaseFirestore.collection("Users").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+
+
+                    ArrayList<String> users = new ArrayList<String>();
+                    for (QueryDocumentSnapshot documentSnapshot: value){
+                        if(documentSnapshot.get("deviceID") != null){
+                            users.add(documentSnapshot.getString("deviceID"));
+                            int size = users.size();
+
+
+                            for (int i=0; i<size; i++){
+
+
+                                device_ID=users.get(i);
+
+
+                                if(device_ID.equals(deviceID)){
+                                    String deleteId =documentSnapshot.getId();
+                                    firebaseFirestore.collection("Users").document(deleteId).delete();
+
+                                    Intent intent = new Intent(RemindersActivity.this,MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
+
+
+                                }
+
+                            }
+
+
+                        }
+
+                    }
+
+
+                }
+            });
+
+
         }
         return super.onOptionsItemSelected(item);
     }
