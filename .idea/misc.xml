@@ -3,9 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/drawable-anydpi/ic_delete.xml" value="0.1421875" />
+        <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/drawable/ic_home_black_24dp.xml" value="0.2703125" />
         <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/layout/activity_add_reminder.xml" value="0.2" />
         <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/layout/activity_my.xml" value="0.12239583333333333" />
         <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/layout/activity_my_firebase_messaging_service.xml" value="0.19610507246376813" />
+        <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/layout/activity_my_reminders.xml" value="0.4" />
+        <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/layout/activity_my_reminders_activty.xml" value="0.24010416666666667" />
         <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/layout/activity_reminders.xml" value="0.17481884057971014" />
         <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/layout/recycler_row.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/ber_d/AndroidStudioProjects/ReminderApp2/app/src/main/res/menu/bottom_nav_menu.xml" value="0.25052083333333336" />
@@ -19,5 +24,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.25416666666666665" />
+      </ProjectState>
+    </option>
   </component>
 </project>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -10,24 +11,41 @@
         android:layout_width="373dp"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
+        android:shadowColor="@color/black"
         android:text="reminder date"
         android:textColor="@android:color/white"
-        android:shadowColor="@color/black"
         android:textSize="20sp"></TextView>
+
 
     <TextView
         android:id="@+id/reminder"
-        android:layout_width="340dp"
+        android:layout_width="332dp"
         android:layout_height="73dp"
         android:layout_margin="10dp"
         android:text="reminder"
         android:textColor="@android:color/white"
         android:textSize="23dp"></TextView>
 
+
+    <ImageButton
+        android:id="@+id/listDeleter"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="right"
+        android:layout_marginRight="10dp"
+        android:contentDescription="Delete"
+        android:onClick="deleteClicked"
+        android:src="@drawable/ic_delete"
+        tools:src="@drawable/ic_delete" />
+
+
     <TextView
         android:id="@+id/name"
-        android:layout_width="305dp"
-        android:layout_height="55dp"
+        android:layout_width="312dp"
+        android:layout_height="60dp"
         android:layout_margin="10dp"
         android:text="name"
         android:textColor="#EDEDEA"
@@ -43,7 +61,6 @@
         android:text="Time"
         android:textColor="@color/white"
         android:textSize="15dp" />
-
 
 
 </LinearLayout>

@@ -39,12 +39,15 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
     public String deviceID;
     String device_ID;
-    String token;
+    String token =null;
     String name;
     String surname;
     String birthdayDate;
     String time;
     String reminder;
+    int day;
+    int month;
+    int year;
 
 
 
@@ -67,6 +70,10 @@ public class MainActivity extends AppCompatActivity {
         deviceID = Secure.getString(this.getContentResolver(), Secure.ANDROID_ID);
         controlID();
         getToken();
+        if(token==null) {
+            getToken();
+        }
+
 
 
 
@@ -149,14 +156,21 @@ public class MainActivity extends AppCompatActivity {
         name = binding.nameText.getText().toString();
         surname = binding.surnameText.getText().toString();
         birthdayDate = binding.birthdayDate.getText().toString();
+        String[] splitArray= birthdayDate.split("/");
+        day= Integer.parseInt(splitArray[0]);
+        month= Integer.parseInt(splitArray[1]);
+        year=Integer.parseInt(splitArray[2]);
 
 
         HashMap<String,Object> postData = new HashMap<>();
-       postData.put("token",token);
+        postData.put("token",token);
         postData.put("name",name);
         postData.put("surname",surname);
         postData.put("date",birthdayDate);
         postData.put("deviceID",deviceID);
+        postData.put("day",day);
+        postData.put("month",month);
+        postData.put("year",year);
 
         firebaseFirestore.collection("Users").document(deviceID).set(postData).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override

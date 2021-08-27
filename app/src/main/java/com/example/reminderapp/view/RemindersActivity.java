@@ -19,6 +19,8 @@ import com.example.reminderapp.adapter.PostAdapter;
 import com.example.reminderapp.databinding.ActivityRemindersBinding;
 import com.example.reminderapp.model.Post;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -31,11 +33,13 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.sql.Timestamp;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class RemindersActivity extends AppCompatActivity {
@@ -45,7 +49,7 @@ public class RemindersActivity extends AppCompatActivity {
     ArrayList<Post> postArrayList;
     private ActivityRemindersBinding binding;
     PostAdapter postAdapter;
-    String deviceID;
+    public String deviceID;
     String device_ID;
 
     @Override
@@ -81,7 +85,18 @@ public class RemindersActivity extends AppCompatActivity {
                         String reminderDate = (String) data.get("reminderDate");
                         String reminderTime = (String) data.get("reminderTime");
                         String name = (String) data.get("name");
+                        String surname = (String) data.get("surname");
                         String title =(String) data.get("title");
+                        Number repeatDayNumber =(Number) data.get("repeatDay");
+                        Number repeatMonthNumber= (Number) data.get("repeatMonth");
+                        Number repeatWeekNumber = (Number) data.get("repeatWeek");
+                        String token = (String) data.get("token");
+                        String deviceID = (String) data.get("deviceID");
+                        String deleteController = (String) data.get("deleteController");
+                        int repeatDay= repeatDayNumber.intValue();
+                        int repeatMonth = repeatMonthNumber.intValue();
+                        int repeatWeek = repeatWeekNumber.intValue();
+
                         String timeFormat = reminderDate+" "+reminderTime;
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
                         Date parsedDate = null;
@@ -94,13 +109,116 @@ public class RemindersActivity extends AppCompatActivity {
                         Date date = new Date();
                         Timestamp timestampCurrent = new Timestamp(date.getTime());
                         int control = timestamp.compareTo(timestampCurrent);
+                        String docId = document.getId();
+
 
                             if (control<0) {
-
-                                String docId = (String) document.getId();
                                 firebaseFirestore.collection("Reminder").document(docId).delete();
+                                SimpleDateFormat calenderFormat = new SimpleDateFormat("dd/MM/yyyy");
+                                Calendar calendar = Calendar.getInstance();
+                                String nextDate= reminderDate;
+                                Timestamp timestampNewDate = null;
 
-                                System.out.println(timestamp + " " + timestampCurrent);
+                                if(repeatDay>0){
+
+
+                                    try {
+                                        calendar.setTime(calenderFormat.parse(nextDate));
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    calendar.add(Calendar.DATE,repeatDay);
+                                    nextDate= calenderFormat.format(calendar.getTime());
+                                    String newTimeFormat = nextDate+" "+reminderTime;
+                                    Date parseNewDate =null;
+                                    try {
+                                        parseNewDate = dateFormat.parse(newTimeFormat);
+                                    } catch (ParseException e){
+                                        e.printStackTrace();
+                                    }
+
+
+                                    timestampNewDate = new Timestamp(parseNewDate.getTime());
+
+
+                                }
+                                    else if (repeatWeek>0){
+                                        int repeatNewWeek=7*repeatWeek;
+
+                                    try {
+                                        calendar.setTime(calenderFormat.parse(nextDate));
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    calendar.add(Calendar.DATE,repeatNewWeek);
+                                    nextDate= calenderFormat.format(calendar.getTime());
+                                    String newTimeFormat = nextDate+" "+reminderTime;
+                                    Date parseNewDate =null;
+                                    try {
+                                        parseNewDate = dateFormat.parse(newTimeFormat);
+                                    } catch (ParseException e){
+                                        e.printStackTrace();
+                                    }
+
+
+                                    timestampNewDate = new Timestamp(parseNewDate.getTime());
+
+                                }
+                                    else if (repeatMonth > 0) {
+
+                                    try {
+                                        calendar.setTime(calenderFormat.parse(nextDate));
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    calendar.add(Calendar.MONTH, repeatMonth);
+                                    nextDate = calenderFormat.format(calendar.getTime());
+
+                                    String newTimeFormat = nextDate+" "+reminderTime;
+                                    Date parseNewDate =null;
+                                    try {
+                                        parseNewDate = dateFormat.parse(newTimeFormat);
+                                    } catch (ParseException e){
+                                        e.printStackTrace();
+                                    }
+
+
+                                    timestampNewDate = new Timestamp(parseNewDate.getTime());
+
+                                }
+                                    if (timestampNewDate != null) {
+                                        HashMap<String, Object> postNewData = new HashMap<>();
+                                        postNewData.put("reminder", reminder);
+                                        postNewData.put("reminderDate", nextDate);
+                                        postNewData.put("reminderTime", reminderTime);
+                                        postNewData.put("name", name);
+                                        postNewData.put("surname", surname);
+                                        postNewData.put("token", token);
+                                        postNewData.put("dateFormat", timestampNewDate);
+                                        postNewData.put("title", title);
+                                        postNewData.put("repeatDay", repeatDay);
+                                        postNewData.put("repeatMonth", repeatMonth);
+                                        postNewData.put("repeatWeek", repeatWeek);
+                                        postNewData.put("deviceID", deviceID);
+                                        firebaseFirestore.collection("Reminder").add(postNewData).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                            @Override
+                                            public void onSuccess(DocumentReference documentReference) {
+
+
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(RemindersActivity.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                    }
+
+
+
+
+
+
 
 
                             }
@@ -161,7 +279,7 @@ public class RemindersActivity extends AppCompatActivity {
 
                                     Intent intent = new Intent(RemindersActivity.this,MainActivity.class);
                                     startActivity(intent);
-                                    finish();
+
 
 
                                 }
@@ -179,6 +297,10 @@ public class RemindersActivity extends AppCompatActivity {
 
 
         }
+        /*else if (item.getItemId()==R.id.myReminders){
+            Intent intentToMy = new Intent(RemindersActivity.this,MyRemindersActivity.class);
+            startActivity(intentToMy);
+        }*/
         return super.onOptionsItemSelected(item);
     }
 }

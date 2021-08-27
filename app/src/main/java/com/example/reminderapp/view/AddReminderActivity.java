@@ -7,33 +7,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.reminderapp.R;
 import com.example.reminderapp.databinding.ActivityAddReminderBinding;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 //import com.google.firebase.Timestamp;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.sql.Timestamp;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 
@@ -49,6 +43,13 @@ public class AddReminderActivity extends AppCompatActivity {
     String userSurname;
     String token;
     String title;
+    String deleteController;
+    int day;
+    int month;
+    int year;
+    int repeatDay;
+    int repeatMonth;
+    int repeatWeek;
 
 
     @Override
@@ -84,14 +85,66 @@ public class AddReminderActivity extends AppCompatActivity {
 
     public void addReminderClick(View view) throws ParseException {
 
+        EditText editDay = (EditText)findViewById(R.id.editDay);
+        String sRepeatDay="1";
+        sRepeatDay = editDay.getText().toString();
+        if (sRepeatDay.matches("")){
+            sRepeatDay="0";
+        }
+        EditText editMonth = (EditText)findViewById(R.id.editMonth);
+        String sRepeatMonth="1";
+        sRepeatMonth = editMonth.getText().toString();
+        if (sRepeatMonth.matches("")){
+            sRepeatMonth="0";
+        }
+        EditText editWeek = (EditText)findViewById(R.id.editWeek);
+        String sRepeatWeek="1";
+        sRepeatWeek = editWeek.getText().toString();
+        if (sRepeatWeek.matches("")){
+            sRepeatWeek="0";
+        }
+
+
+
         String reminder = binding.reminderText.getText().toString();
         String reminderDate = binding.editTextDate.getText().toString();
         String reminderTime = binding.editTextTime.getText().toString();
+        if (!(sRepeatDay.matches("0"))) {
+            repeatDay = Integer.parseInt(binding.editDay.getText().toString());
+        }
+        else {
+            repeatDay = 0;
+        }
+        if (!(sRepeatMonth.matches("0"))) {
+            repeatMonth = Integer.parseInt(binding.editMonth.getText().toString());
+        }
+        else{
+            repeatMonth =0;
+        }
+        if (!(sRepeatWeek.matches("0"))) {
+            repeatWeek = Integer.parseInt(binding.editWeek.getText().toString());
+        }
+        else{
+            repeatWeek = 0;
+        }
         String timeFormat = reminderDate+" "+reminderTime;
         title = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         Date parsedDate = dateFormat.parse(timeFormat);
         Timestamp timestamp = new Timestamp(parsedDate.getTime());
+
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dateFormat.parse(timeFormat));
+        calendar.add(Calendar.DATE,repeatDay);
+
+
+        String[] splitArray= reminderDate.split("/");
+        day= Integer.parseInt(splitArray[0]);
+        month= Integer.parseInt(splitArray[1]);
+        year=Integer.parseInt(splitArray[2]);
+        deleteController = reminder+reminderDate+reminderTime+deviceID;
+
 
             HashMap<String,Object> postData = new HashMap<>();
 
@@ -103,6 +156,14 @@ public class AddReminderActivity extends AppCompatActivity {
             postData.put("token",token);
             postData.put("dateFormat",timestamp);
             postData.put("title",title);
+            //postData.put("day",day);
+            //postData.put("month",month);
+            //postData.put("year",year);
+            postData.put("repeatDay",repeatDay);
+            postData.put("repeatMonth",repeatMonth);
+            postData.put("repeatWeek",repeatWeek);
+            postData.put("deviceID",deviceID);
+            postData.put("deleteController",deleteController);
 
 
             firebaseFirestore.collection("Reminder").add(postData).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
